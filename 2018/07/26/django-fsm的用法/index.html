@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="django有限状态机为django Mode提供简单的状态管理,实际就是改变数据库存储的数值,来进行状态的切换.">
+<meta name="keywords" content="django">
+<meta property="og:type" content="article">
+<meta property="og:title" content="django-fsm的用法">
+<meta property="og:url" content="http://yoursite.com/2018/07/26/django-fsm的用法/index.html">
+<meta property="og:site_name" content="The quiter you become, the more you can hear.">
+<meta property="og:description" content="django有限状态机为django Mode提供简单的状态管理,实际就是改变数据库存储的数值,来进行状态的切换.">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-07-30T02:24:04.555Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="django-fsm的用法">
+<meta name="twitter:description" content="django有限状态机为django Mode提供简单的状态管理,实际就是改变数据库存储的数值,来进行状态的切换.">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/07/26/django-fsm的用法/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>django-fsm的用法 | The quiter you become, the more you can hear.</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">The quiter you become, the more you can hear.</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/26/django-fsm的用法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="yinlei">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jepg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="The quiter you become, the more you can hear.">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">django-fsm的用法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-07-26 23:20:08" itemprop="dateCreated datePublished" datetime="2018-07-26T23:20:08-07:00">2018-07-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-07-29 19:24:04" itemprop="dateModified" datetime="2018-07-29T19:24:04-07:00">2018-07-29</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>django有限状态机为django Mode提供简单的状态管理,实际就是改变数据库存储的数值,来进行状态的切换.</p>
+<a id="more"></a>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install django-fsm</span><br></pre></td></tr></table></figure>
+<h3 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django_fsm <span class="keyword">import</span> FSMField, transition</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BlogPost</span><span class="params">(models.Model)</span>:</span></span><br><span class="line">    state = FSMField(default=<span class="string">'new'</span>)</span><br></pre></td></tr></table></figure>
+<p>1.在你的models模块新建一个Model模型,集成models.Model与django的Model的创建一样</p>
+<p>建立一个state子段 是FSMField类型,它实际是继承FSMFieldMixin, models.CharField,所以它也是CharField类型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FSMField</span><span class="params">(FSMFieldMixin, models.CharField)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    State Machine support for Django model as CharField</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, *args, **kwargs)</span>:</span></span><br><span class="line">        kwargs.setdefault(<span class="string">'max_length'</span>, <span class="number">50</span>)</span><br><span class="line">        super(FSMField, self).__init__(*args, **kwargs)</span><br></pre></td></tr></table></figure>
+<p>2.在你的BlogPost Model下声明一个publish方法,方法的名字可以随便定义不是固定的.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">can_publish</span><span class="params">(instance)</span>:</span></span><br><span class="line">    <span class="comment"># No publishing after 17 hours</span></span><br><span class="line">    <span class="keyword">if</span> datetime.datetime.now().hour &gt; <span class="number">17</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BlogPost</span><span class="params">(models.Model)</span>:</span></span><br><span class="line">    state = FSMField(max_length=<span class="number">20</span>,default=<span class="string">'new'</span>)</span><br><span class="line">    custom = &#123;<span class="string">'label'</span>: <span class="string">'Publish'</span>, <span class="string">'type'</span>: <span class="string">'*'</span>&#125;</span><br><span class="line"><span class="meta">    @transition(field=state,source='start',target='pub',conditions=[can_publish,],custom=custom,on_error='failed',permission='polls.delete_blogpost')</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">publish</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">'publish 执行'</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">'publish'</span></span><br></pre></td></tr></table></figure>
+<p>3.用transition装饰器装饰刚才的publish方法,transition的具体逻辑如下</p>
+<p>  field为你在BlogPost模块定义的字段,我们定义了一个叫state的字段所以可以填写state</p>
+<p>  source里面的字段值你可以随便定义,当你定义的source与你数据存储state的一致时(除了定义为*或+),当要    执行改变状态时,就会校验这个数值,是否不通过</p>
+<p>target为检验通过以后当要改变状态时,把你的state改为你自己定义的内容,例如上文中我们定义了pub内容</p>
+<p>conditions可以添加我们要使用的校验方法</p>
+<p>on_error 当我们执行publish方法时抛出了异常,我们将异常捕获,那么数据库中的state字段就变成上面我们定义的failed,如果不捕获异常数据库中的state值不会变化</p>
+<p>permission 校验当前用户是否具有该model模块某些权限,例如上面我们定义了polls.delete_blogpost 其中polls为你的app名称delete为删除权限也可以add,也可以其他的.blogpost为你的新建的Model模块</p>
+<p>custom 自定义用</p>
+<p>transition方法里面的具体内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transition</span><span class="params">(field, source=<span class="string">'*'</span>, target=None, on_error=None, conditions=[], permission=None, custom=&#123;&#125;)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Method decorator for mark allowed transitions</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Set target to None if current state needs to be validated and</span></span><br><span class="line"><span class="string">    has not changed after the function call</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">inner_transition</span><span class="params">(func)</span>:</span></span><br><span class="line">        <span class="comment">#判断我们定义的方法是否有'_django_fsm'属性</span></span><br><span class="line">        wrapper_installed, fsm_meta = <span class="keyword">True</span>, getattr(func, <span class="string">'_django_fsm'</span>, <span class="keyword">None</span>)</span><br><span class="line">        <span class="comment">#刚开始我们定义的方法没有_django_fsm属性</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> fsm_meta:</span><br><span class="line">            wrapper_installed = <span class="keyword">False</span></span><br><span class="line">            <span class="comment">#新建一个FSMMeta对象添加到我们定义的函数上</span></span><br><span class="line">            fsm_meta = FSMMeta(field=field, method=func)</span><br><span class="line">            setattr(func, <span class="string">'_django_fsm'</span>, fsm_meta)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> isinstance(source, (list, tuple, set)):</span><br><span class="line">            <span class="comment">#如果我们定义的source为list,tuple,set中的一种就会对source进行遍历操作添加到fsm_meta的transitions中,transitions为一个dict类型的</span></span><br><span class="line">            <span class="keyword">for</span> state <span class="keyword">in</span> source:</span><br><span class="line">                func._django_fsm.add_transition(func, state, target, on_error, conditions, permission, custom)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            func._django_fsm.add_transition(func, source, target, on_error, conditions, permission, custom)</span><br><span class="line"></span><br><span class="line"><span class="meta">        @wraps(func)</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_change_state</span><span class="params">(instance, *args, **kwargs)</span>:</span><span class="comment">#当要改变状态时要执行的方法</span></span><br><span class="line">            <span class="keyword">return</span> fsm_meta.field.change_state(instance, func, *args, **kwargs)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> wrapper_installed:<span class="comment">#如果我们没有给我们定义的function添加_django_fsm属性那么我们在执行我们定义的function时,就会执行_change_state这个方法</span></span><br><span class="line">            <span class="keyword">return</span> _change_state</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> func</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> inner_transition</span><br></pre></td></tr></table></figure>
+<p>类FSMMeta里面的具体内容</p>
+<p>FSMMeta类中get_transition(self, source)与add_transition(source,…)方法中的source是不同的,get_transition方法中的source为我们数据库存储的数值,即我们的例子中当前state字段对应数据库中的数值,add_transition中的source为我们在装饰器中传递的参数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FSMMeta</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Models methods transitions meta information</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, field, method)</span>:</span></span><br><span class="line">        self.field = field<span class="comment">#我们在Model中定义的字段</span></span><br><span class="line">        self.transitions = &#123;&#125;  <span class="comment"># source -&gt; Transition#存储以source为键,值为Transition()对象实例,该实例包含了我们定义的method方法,source字段,target字段,on_error字段,conditions字段,permission字段等</span></span><br><span class="line">	</span><br><span class="line">    <span class="comment">#获取FSMMeta对象实例</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_transition</span><span class="params">(self, source)</span>:</span></span><br><span class="line">        <span class="comment">#从transitions字典中获取source键对应的Transition对象实例,source为我们数据库中的值</span></span><br><span class="line">        transition = self.transitions.get(source, <span class="keyword">None</span>)</span><br><span class="line">        <span class="comment">#如果transition为空,即字典中没有保存source键对应的Transition对象实例</span></span><br><span class="line">        <span class="keyword">if</span> transition <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="comment">#判断以前我们是否用source是否用'*'作为source进行存储</span></span><br><span class="line">            transition = self.transitions.get(<span class="string">'*'</span>, <span class="keyword">None</span>)</span><br><span class="line">        <span class="keyword">if</span> transition <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="comment">#判断以前我们是否用source是否用'+'作为source进行存储</span></span><br><span class="line">            transition = self.transitions.get(<span class="string">'+'</span>, <span class="keyword">None</span>)</span><br><span class="line">        <span class="keyword">return</span> transition</span><br><span class="line">    <span class="comment">#将source中的数值,以及Transition对象实例添加到transitions字典中,如果source为集合那么transitions中包含多个数值,source为我们在装饰器中填写的source参数值</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_transition</span><span class="params">(self, method, source, target, on_error=None, conditions=[], permission=None, custom=&#123;&#125;)</span>:</span></span><br><span class="line">        <span class="comment">#如果source中包含重复字段就会抛出异常</span></span><br><span class="line">        <span class="keyword">if</span> source <span class="keyword">in</span> self.transitions:</span><br><span class="line">            <span class="keyword">raise</span> AssertionError(<span class="string">'Duplicate transition for &#123;0&#125; state'</span>.format(source))</span><br><span class="line">		<span class="comment">#创建以source为键 Transition对象实例为值存入到transitions中</span></span><br><span class="line">        self.transitions[source] = Transition(</span><br><span class="line">            method=method,</span><br><span class="line">            source=source,</span><br><span class="line">            target=target,</span><br><span class="line">            on_error=on_error,</span><br><span class="line">            conditions=conditions,</span><br><span class="line">            permission=permission,</span><br><span class="line">            custom=custom)</span><br><span class="line">	<span class="comment">#判断当前的状态,是否在transitions中.即我们数据库中state对应的数值是否在transitions中</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">has_transition</span><span class="params">(self, state)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        Lookup if any transition exists from current model state using current method</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="comment">#判断当前的状态,是否在transitions中.即我们数据库中state对应的数值是否在transitions中</span></span><br><span class="line">        <span class="keyword">if</span> state <span class="keyword">in</span> self.transitions:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line">       <span class="comment">#判断*是否在transitions中</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">'*'</span> <span class="keyword">in</span> self.transitions:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line">		<span class="comment">#判断*是否在transitions中并且当前state字段对应数据库中的值与target是否不同</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">'+'</span> <span class="keyword">in</span> self.transitions <span class="keyword">and</span> self.transitions[<span class="string">'+'</span>].target != state:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">    <span class="comment">#进行我们在conditions中添加的方法条件的判断,state为当前数据库中的状态值</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">conditions_met</span><span class="params">(self, instance, state)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        Check if all conditions have been met</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="comment">#获取Transition实例对象</span></span><br><span class="line">        transition = self.get_transition(state)</span><br><span class="line">        </span><br><span class="line">        <span class="comment">#没有Transition实例对象直接验证不通过</span></span><br><span class="line">        <span class="keyword">if</span> transition <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">        <span class="comment">#如果conditions为空说明不进行条件判断</span></span><br><span class="line">        <span class="keyword">elif</span> transition.conditions <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="string">"""</span></span><br><span class="line"><span class="string">            conditions为列表,我们将作用于map函数,执行map函数</span></span><br><span class="line"><span class="string">            中的匿名lambda函数即执行conditions列表中的每一个函数,将返回的结果放到列表中</span></span><br><span class="line"><span class="string">            用all函数进行判断</span></span><br><span class="line"><span class="string">            """</span></span><br><span class="line">            <span class="keyword">return</span> all(map(<span class="keyword">lambda</span> condition: condition(instance), transition.conditions))</span><br><span class="line">    <span class="comment">#进行权限的判断</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">has_transition_perm</span><span class="params">(self, instance, state, user)</span>:</span></span><br><span class="line">        <span class="comment">#获取Transition对象实例</span></span><br><span class="line">        transition = self.get_transition(state)</span><br><span class="line">        <span class="comment">#如果Transition对象实例为空直接没有权限</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> transition:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment">#判断transition中是否含有权限,user为登录的用户,一般为request.user</span></span><br><span class="line">            <span class="keyword">return</span> transition.has_perm(instance, user)</span><br><span class="line">    <span class="comment">#获取我们的传递过来的target数值</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">next_state</span><span class="params">(self, current_state)</span>:</span></span><br><span class="line">        transition = self.get_transition(current_state)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> transition <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">raise</span> TransitionNotAllowed(<span class="string">'No transition from &#123;0&#125;'</span>.format(current_state))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> transition.target</span><br><span class="line">    <span class="comment">#当异常抛出时,我们获取我们定义的on_error参数</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">exception_state</span><span class="params">(self, current_state)</span>:</span></span><br><span class="line">        transition = self.get_transition(current_state)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> transition <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">raise</span> TransitionNotAllowed(<span class="string">'No transition from &#123;0&#125;'</span>.format(current_state))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> transition.on_error</span><br></pre></td></tr></table></figure>
+<p>4.当我们执行我们定义的publish函数时,实际调用的是fsm_meta.field.change_state,</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">change_state</span><span class="params">(self, instance, method, *args, **kwargs)</span>:</span></span><br><span class="line">      <span class="comment">#meta为FSMMeta对象实例</span></span><br><span class="line">      meta = method._django_fsm</span><br><span class="line">      <span class="comment">#我们定义的函数的名字</span></span><br><span class="line">      method_name = method.__name__</span><br><span class="line">      current_state = self.get_state(instance)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> <span class="keyword">not</span> meta.has_transition(current_state):</span><br><span class="line">          <span class="keyword">raise</span> TransitionNotAllowed(</span><br><span class="line">              <span class="string">"Can't switch from state '&#123;0&#125;' using method '&#123;1&#125;'"</span>.format(current_state, method_name),</span><br><span class="line">              object=instance, method=method)</span><br><span class="line">      <span class="keyword">if</span> <span class="keyword">not</span> meta.conditions_met(instance, current_state):</span><br><span class="line">          <span class="keyword">raise</span> TransitionNotAllowed(</span><br><span class="line">              <span class="string">"Transition conditions have not been met for method '&#123;0&#125;'"</span>.format(method_name),</span><br><span class="line">              object=instance, method=method)</span><br><span class="line">      <span class="comment">#获取target数值</span></span><br><span class="line">      next_state = meta.next_state(current_state)</span><br><span class="line"></span><br><span class="line">      signal_kwargs = &#123;</span><br><span class="line">          <span class="string">'sender'</span>: instance.__class__,</span><br><span class="line">          <span class="string">'instance'</span>: instance,</span><br><span class="line">          <span class="string">'name'</span>: method_name,</span><br><span class="line">          <span class="string">'field'</span>: meta.field,</span><br><span class="line">          <span class="string">'source'</span>: current_state,</span><br><span class="line">          <span class="string">'target'</span>: next_state,</span><br><span class="line">          <span class="string">'method_args'</span> : args,</span><br><span class="line">          <span class="string">'method_kwargs'</span> : kwargs</span><br><span class="line">      &#125;</span><br><span class="line"><span class="comment">#调用pre_transition信号发送信号</span></span><br><span class="line">      pre_transition.send(**signal_kwargs)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">try</span>:</span><br><span class="line">          <span class="comment">#调用我们定义的方法,并且获取返回结果</span></span><br><span class="line">          result = method(instance, *args, **kwargs)</span><br><span class="line">          <span class="comment">#如果target不为空</span></span><br><span class="line">          <span class="keyword">if</span> next_state <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">              <span class="comment">#判断target是否含有get_state属性,即判断target是否是RETURN_VALUE或者GET_STATE对象类型</span></span><br><span class="line">              <span class="comment">#如果是就获取里面对应的数值</span></span><br><span class="line">              <span class="keyword">if</span> hasattr(next_state, <span class="string">'get_state'</span>):</span><br><span class="line">                  next_state = next_state.get_state(</span><br><span class="line">                      instance, transition, result,</span><br><span class="line">                      args=args, kwargs=kwargs)</span><br><span class="line">                  signal_kwargs[<span class="string">'target'</span>] = next_state</span><br><span class="line">              <span class="comment">#把instance作为代理类</span></span><br><span class="line">              self.set_proxy(instance, next_state)</span><br><span class="line">              self.set_state(instance, next_state)</span><br><span class="line">      <span class="keyword">except</span> Exception <span class="keyword">as</span> exc:</span><br><span class="line">          <span class="comment">#如果发生异常就会获取error_state</span></span><br><span class="line">          exception_state = meta.exception_state(current_state)</span><br><span class="line">          <span class="keyword">if</span> exception_state:</span><br><span class="line">              self.set_proxy(instance, exception_state)</span><br><span class="line">              self.set_state(instance, exception_state)</span><br><span class="line">              signal_kwargs[<span class="string">'target'</span>] = exception_state</span><br><span class="line">              signal_kwargs[<span class="string">'exception'</span>] = exc</span><br><span class="line">              <span class="comment">#发送信号</span></span><br><span class="line">              post_transition.send(**signal_kwargs)</span><br><span class="line">          <span class="keyword">raise</span></span><br><span class="line">      <span class="keyword">else</span>:</span><br><span class="line">          post_transition.send(**signal_kwargs)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure>
+<p>在view试图函数中进行使用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">list</span><span class="params">(self, request, *args, **kwargs)</span>:</span></span><br><span class="line">    <span class="comment">#校验conditions的验证方法</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> can_proceed(post.publish):</span><br><span class="line">        <span class="keyword">raise</span> PermissionError</span><br><span class="line">    <span class="comment">#进行权限的校验</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> has_transition_perm(post.publish,request.user):</span><br><span class="line">        <span class="keyword">raise</span> PermissionError</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        post.publish(request=request)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">       <span class="keyword">pass</span></span><br><span class="line">    post.save()</span><br><span class="line">    <span class="keyword">return</span> super(AnimalViewset, self).list(request, *args, **kwargs)</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/django/" rel="tag"># django</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/26/冒泡排序/" rel="next" title="冒泡排序">
+                <i class="fa fa-chevron-left"></i> 冒泡排序
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jepg"
+                alt="yinlei" />
+            
+              <p class="site-author-name" itemprop="name">yinlei</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用法"><span class="nav-number">2.</span> <span class="nav-text">用法</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yinlei</span>
+
+  
+
+  
+</div>
+
+
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+  
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+<script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+
+</body>
+</html>
